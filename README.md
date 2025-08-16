@@ -112,6 +112,3 @@ Import it into Postman to test APIs.
 ![Folder Structure Viewer](https://i.ibb.co.com/fzdMhyhF/cq-Wiah-Py-RF6-V04-Jm-MJUHz-A.jpg)
 
 
-
-
-# fullstack-folder-structure-app

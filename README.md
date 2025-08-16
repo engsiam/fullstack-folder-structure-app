@@ -4,7 +4,7 @@ A **fullstack application** to view and manage hierarchical folder structures.
 Built with **React + TypeScript + styled-components** (frontend) and **Express + TypeScript + MongoDB** (backend).
 
 ### 🌳 Folder Tree UI
-
+## 📸 Screenshots
 ![Folder Structure Viewer](https://i.ibb.co.com/fzdMhyhF/cq-Wiah-Py-RF6-V04-Jm-MJUHz-A.jpg)
 
 ## 🚀 Features
@@ -109,7 +109,7 @@ A ready-to-use Postman collection is included:
 
 Import it into Postman to test APIs.
 
-## 📸 Screenshots
+
 
 
 

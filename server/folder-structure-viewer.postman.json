@@ -1,0 +1,75 @@
+{
+  "info": {
+    "name": "Folder Structure Viewer API",
+    "_postman_id": "aaaa-bbbb-cccc-dddd-eeeeffff0000",
+    "description": "APIs for folder structure viewer",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Tree",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:5500/api/tree",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5500",
+          "path": [
+            "api",
+            "tree"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Folder",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"New Folder\", \"parentId\": \"<root_or_parent_id>\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5500/api/folders",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5500",
+          "path": [
+            "api",
+            "folders"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Folder",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:5500/api/folders/<id>",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5500",
+          "path": [
+            "api",
+            "folders",
+            "<id>"
+          ]
+        }
+      }
+    }
+  ]
+}

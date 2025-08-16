@@ -5,8 +5,12 @@ export const getTree = async (_req: Request, res: Response) => {
     try {
         const tree = await folderService.getTree();
         res.json(tree);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            res.status(500).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: "Unknown error" });
+        }
     }
 };
 
@@ -15,8 +19,12 @@ export const createFolder = async (req: Request, res: Response) => {
     try {
         const folder = await folderService.createFolder(name, parentId);
         res.status(201).json(folder);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            res.status(400).json({ error: error.message });
+        } else {
+            res.status(400).json({ error: "Unknown error" });
+        }
     }
 };
 
@@ -25,7 +33,11 @@ export const deleteFolder = async (req: Request, res: Response) => {
     try {
         await folderService.deleteFolder(id);
         res.json({ message: "Deleted" });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            res.status(400).json({ error: error.message });
+        } else {
+            res.status(400).json({ error: "Unknown error" });
+        }
     }
 };

@@ -1,57 +1,84 @@
 import mongoose from "mongoose";
-import Folder from "../models/Folder";
+import Folder, { IFolder } from "../models/Folder";
 
-async function buildTree(parentId: mongoose.Types.ObjectId | null) {
-  const nodes = await Folder.find({ parentId });
-  const result = [];
+export type FolderNode = {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  isRoot: boolean;
+  children: FolderNode[];
+};
+
+// Build tree recursively
+async function buildTree(parentId: mongoose.Types.ObjectId | null): Promise<FolderNode[]> {
+  // Cast via unknown first to satisfy TypeScript
+  const nodes = await Folder.find({ parentId }).lean().exec() as unknown as IFolder[];
+  const result: FolderNode[] = [];
+
   for (const node of nodes) {
-    const children = await buildTree(node._id);
+    const children: FolderNode[] = await buildTree(node._id);
     result.push({
       _id: node._id,
       name: node.name,
       isRoot: node.isRoot,
-      children
+      children,
     });
   }
+
   return result;
 }
 
-export const getTree = async () => {
-    const root = await Folder.findOne({ isRoot: true });
-    if (!root) throw new Error("Root missing");
-    const children = await buildTree(root._id);
-    return {
-        _id: root._id,
-        name: root.name,
-        isRoot: true,
-        children
-    };
+// Get full tree starting from root
+export const getTree = async (): Promise<FolderNode> => {
+  const root = await Folder.findOne({ isRoot: true }).lean().exec() as IFolder | null;
+  if (!root) throw new Error("Root missing");
+
+  const children: FolderNode[] = await buildTree(root._id);
+
+  return {
+    _id: root._id,
+    name: root.name,
+    isRoot: true,
+    children,
+  };
 };
 
-export const createFolder = async (name: string, parentId?: string) => {
-    if (!name) throw new Error("Name required");
+// Create folder
+export const createFolder = async (name: string, parentId?: string): Promise<IFolder> => {
+  if (!name) throw new Error("Name required");
 
-    let parent = null;
-    if (parentId) {
-        parent = await Folder.findById(parentId);
-        if (!parent) throw new Error("Parent not found");
-    } else {
-        parent = await Folder.findOne({ isRoot: true });
-    }
+  let parent: IFolder | null = null;
 
-    const folder = await Folder.create({ name, parentId: parent?._id || null, isRoot: false });
-    return folder;
+  if (parentId) {
+    parent = await Folder.findById(parentId).lean().exec() as IFolder | null;
+    if (!parent) throw new Error("Parent not found");
+  } else {
+    parent = await Folder.findOne({ isRoot: true }).lean().exec() as IFolder | null;
+  }
+
+  const folderDoc = await Folder.create({
+    name,
+    parentId: parent?._id || null,
+    isRoot: false,
+  });
+
+  return folderDoc.toObject() as IFolder;
 };
 
-async function deleteSubtree(fid: mongoose.Types.ObjectId) {
-    const children = await Folder.find({ parentId: fid });
-    for (const c of children) await deleteSubtree(c._id);
-    await Folder.findByIdAndDelete(fid);
+// Delete subtree
+async function deleteSubtree(fid: mongoose.Types.ObjectId): Promise<void> {
+  const children = await Folder.find({ parentId: fid }).lean().exec() as unknown as IFolder[];
+  for (const c of children) {
+    await deleteSubtree(c._id);
+  }
+  await Folder.findByIdAndDelete(fid).exec();
 }
 
-export const deleteFolder = async (id: string) => {
-    const folder = await Folder.findById(id);
-    if (!folder) throw new Error("Folder not found");
-    if (folder.isRoot) throw new Error("Root cannot be deleted");
-    await deleteSubtree(folder._id);
+
+// Delete folder by ID
+export const deleteFolder = async (id: string): Promise<void> => {
+  const folder = await Folder.findById(id).lean().exec() as IFolder | null;
+  if (!folder) throw new Error("Folder not found");
+  if (folder.isRoot) throw new Error("Root cannot be deleted");
+
+  await deleteSubtree(folder._id);
 };
